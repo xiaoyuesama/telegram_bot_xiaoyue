@@ -9,9 +9,9 @@ import telebot
 from telebot import types
 
 # 全局参数设定
-API_TOKEN = "431479860:AAHT0rK4GxYGljI_uxYYgBlcvDlL-PBwbs8"
+API_TOKEN = "TOKEN"
 bot = telebot.TeleBot(API_TOKEN)
-admin_id = int(106299751)
+admin_id = int(none)
 hitokoto_api = 'http://api.hitokoto.cn/?encode=text'
 
 
