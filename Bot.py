@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import random
+import sys
 import time
 
 import requests
@@ -9,9 +10,10 @@ import telebot
 from telebot import types
 
 # 全局参数设定
+# 测试是否成功添加
 API_TOKEN = "TOKEN"
 bot = telebot.TeleBot(API_TOKEN)
-admin_id = int(none)
+admin_id = int(None)
 hitokoto_api = 'http://api.hitokoto.cn/?encode=text'
 
 
