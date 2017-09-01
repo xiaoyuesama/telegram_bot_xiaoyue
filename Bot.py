@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import logging
 import random
 import sys
 import time
@@ -13,9 +12,17 @@ from telebot import types
 # 测试是否成功添加
 API_TOKEN = "TOKEN"
 bot = telebot.TeleBot(API_TOKEN)
+bot.set_update_listener(listener)  # 注册聆听
 admin_id = int(None)
 hitokoto_api = 'http://api.hitokoto.cn/?encode=text'
+hideBoard = types.ReplyKeyboardRemove()  # 隐藏键盘
 
+commands = {  # command description used in the "help" command
+    'prpr': 'prpr me',
+    'get_chat_id': '得到您的会话ID',
+    'hitokoto': '得到一条很有道理但是没啥用的梦呓',
+    'help': '获得帮助'
+}
 
 # 转发使用者发给与bot的对话
 def ret_msg_to_admin(message):
@@ -24,8 +31,19 @@ def ret_msg_to_admin(message):
     # bot.forward_message(admin_id, message.chat.id, msg.message_id, disable_notification=True)
 
 
+# 显示在控制台
+def listener(messages):
+    """
+    When new messages arrive TeleBot will call this function.
+    """
+    for m in messages:
+        if m.content_type == 'text':
+            # print the sent message to the console
+            print
+            str(m.chat.first_name) + " [" + str(m.chat.id) + "]: " + m.text
+
 # 开启DEBUG并输出到控制台
-telebot.logger.setLevel(logging.DEBUG)
+# telebot.logger.setLevel(logging.DEBUG)
 
 
 # 设定全局函数 send_command_message 减少在群组内打扰人的情况
@@ -73,12 +91,11 @@ def muen(message):
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.send_chat_action(message.chat.id, 'typing')
-    send_command_message(message, '你好呀，' + str(message.chat.username) + '''
-我可以提供以下功能
-/prpr	prpr me
-/get_chat_id	得到您的会话ID
-/hitokoto	得到一条很有道理但是没啥用的梦呓
-/help	获得帮助''')
+    help_text = "HI," + str(message.chat.username) + "The following commands are available: \n"
+    for key in commands:  # generate help text out of the commands dictionary defined at the top
+        help_text += "/" + key + ": "
+        help_text += commands[key] + "\n"
+        send_command_message(message.chat.id, help_text)  # send the generated help page
 
 
 # 处理 help 请求
