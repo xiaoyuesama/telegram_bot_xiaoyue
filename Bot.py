@@ -11,7 +11,7 @@ from telebot import types
 # 全局参数设定
 # 测试是否成功添加
 API_TOKEN = "TOKEN"
-admin_id = int(None)
+admin_id = int(your_id)
 hitokoto_api = 'http://api.hitokoto.cn/?encode=text'
 hideBoard = types.ReplyKeyboardRemove()  # 隐藏键盘
 
@@ -45,7 +45,7 @@ bot = telebot.TeleBot(API_TOKEN)
 bot.set_update_listener(listener)  # 注册聆听
 
 # 开启DEBUG并输出到控制台
-# telebot.logger.setLevel(logging.DEBUG)
+#telebot.logger.setLevel(logging.DEBUG)
 
 
 # 设定全局函数 send_command_message 减少在群组内打扰人的情况
@@ -93,11 +93,11 @@ def muen(message):
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.send_chat_action(message.chat.id, 'typing')
-    help_text = "HI," + str(message.chat.username) + "The following commands are available: \n"
+    help_text = "HI, " + str(message.chat.username) + " The following commands are available: \n"
     for key in commands:  # generate help text out of the commands dictionary defined at the top
         help_text += "/" + key + ": "
         help_text += commands[key] + "\n"
-        send_command_message(message.chat.id, help_text)  # send the generated help page
+    bot.send_message(message.chat.id, help_text)  # send the generated help page
 
 
 # 处理 help 请求
