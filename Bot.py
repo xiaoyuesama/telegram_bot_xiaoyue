@@ -8,26 +8,27 @@ import requests
 import telebot
 from telebot import types
 
-# 全局参数设定
-# 测试是否成功添加
+# 以下全局参数设定
+
 API_TOKEN = "TOKEN"
-admin_id = int(your_id)
+admin_id = int(Your_id)
 hitokoto_api = 'http://api.hitokoto.cn/?encode=text'
 hideBoard = types.ReplyKeyboardRemove()  # 隐藏键盘
-
 commands = {  # command description used in the "help" command
     'prpr': 'prpr me',
     'get_chat_id': '得到您的会话ID',
     'hitokoto': '得到一条很有道理但是没啥用的梦呓',
     'help': '获得帮助'
 }
-
+#################
+'''
+老代码用与查看使用者发送给bot的消息
 # 转发使用者发给与bot的对话
 def ret_msg_to_admin(message):
     # todo 顺带将bot的发送也转发给作者
     bot.forward_message(admin_id, message.chat.id, message.message_id, disable_notification=True)
     # bot.forward_message(admin_id, message.chat.id, msg.message_id, disable_notification=True)
-
+'''
 
 # 显示在控制台
 def listener(messages):
@@ -38,6 +39,7 @@ def listener(messages):
         if m.content_type == 'text':
             # print the sent message to the console
             print(str(m.chat.first_name) + " [" + str(m.chat.id) + "]: " + m.text)
+            bot.send_message(admin_id, str(m.chat.first_name) + " [" + str(m.chat.id) + "]: " + m.text)
 
 
 # 注册对象
