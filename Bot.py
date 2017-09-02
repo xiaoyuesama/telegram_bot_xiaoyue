@@ -11,8 +11,6 @@ from telebot import types
 # 全局参数设定
 # 测试是否成功添加
 API_TOKEN = "TOKEN"
-bot = telebot.TeleBot(API_TOKEN)
-bot.set_update_listener(listener)  # 注册聆听
 admin_id = int(None)
 hitokoto_api = 'http://api.hitokoto.cn/?encode=text'
 hideBoard = types.ReplyKeyboardRemove()  # 隐藏键盘
@@ -39,8 +37,12 @@ def listener(messages):
     for m in messages:
         if m.content_type == 'text':
             # print the sent message to the console
-            print
-            str(m.chat.first_name) + " [" + str(m.chat.id) + "]: " + m.text
+            print(str(m.chat.first_name) + " [" + str(m.chat.id) + "]: " + m.text)
+
+
+# 注册对象
+bot = telebot.TeleBot(API_TOKEN)
+bot.set_update_listener(listener)  # 注册聆听
 
 # 开启DEBUG并输出到控制台
 # telebot.logger.setLevel(logging.DEBUG)
@@ -161,67 +163,6 @@ def send_hitokoto(message):
 @bot.message_handler(content_types=['document', 'audio'])
 def handle_docs_audio(message):
     pass
-
-
-'''
-========================
-以下为inlinebot的代码
-========================
-'''
-
-
-@bot.inline_handler(lambda query: query.query == 'text')
-def query_text(inline_query):
-    try:
-        r = types.InlineQueryResultArticle('1', 'Result1',
-                                           types.InputTextMessageContent('[text]http://www.example.com/)'))
-        r2 = types.InlineQueryResultArticle('2', 'Result2',
-                                            types.InputTextMessageContent('[text](http://www.example.com/)'))
-        bot.answer_inline_query(inline_query.id, [r, r2])
-    except Exception as e:
-        print(e)
-
-
-# noinspection PyPep8
-@bot.inline_handler(lambda query: query.query == 'photo1')
-def query_photo(inline_query):
-    kitten = 'https://raw.githubusercontent.com/eternnoir/pyTelegramBotAPI/master/examples/detailed_example/kitten.jpg'
-    rooster = 'https://raw.githubusercontent.com/eternnoir/pyTelegramBotAPI/master/examples/detailed_example/rooster.jpg'
-    try:
-        # noinspection PyPep8
-        r = types.InlineQueryResultPhoto('1', kitten, kitten,
-                                         input_message_content=types.InputTextMessageContent('hi'))
-        r2 = types.InlineQueryResultPhoto('2',
-                                          rooster,
-                                          rooster)
-        bot.answer_inline_query(inline_query.id, [r, r2], cache_time=1)
-    except Exception as e:
-        print(e)
-
-
-@bot.inline_handler(lambda query: query.query == 'video')
-def query_video(inline_query):
-    test_video = 'https://github.com/eternnoir/pyTelegramBotAPI/blob/master/tests/test_data/test_video.mp4?raw=true'
-    rooster = 'https://raw.githubusercontent.com/eternnoir/pyTelegramBotAPI/master/examples/detailed_example/rooster.jpg'
-    try:
-        r = types.InlineQueryResultVideo('1',
-                                         test_video,
-                                         'video/mp4', 'Video',
-                                         rooster,
-                                         'Title'
-                                         )
-        bot.answer_inline_query(inline_query.id, [r])
-    except Exception as e:
-        print(e)
-
-
-@bot.inline_handler(lambda query: len(query.query) is 0)
-def default_query(inline_query):
-    try:
-        r = types.InlineQueryResultArticle('1', '默认选项', types.InputTextMessageContent('[text]'))
-        bot.answer_inline_query(inline_query.id, [r])
-    except Exception as e:
-        print(e)
 
 
 # todo 入群进行提醒
