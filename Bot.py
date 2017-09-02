@@ -8,10 +8,11 @@ import requests
 import telebot
 from telebot import types
 
+# ========================#
 # 以下全局参数设定
 
 API_TOKEN = "TOKEN"
-admin_id = int(Your_id)
+admin_id = int(Your_ID)
 hitokoto_api = 'http://api.hitokoto.cn/?encode=text'
 hideBoard = types.ReplyKeyboardRemove()  # 隐藏键盘
 commands = {  # command description used in the "help" command
@@ -20,7 +21,7 @@ commands = {  # command description used in the "help" command
     'hitokoto': '得到一条很有道理但是没啥用的梦呓',
     'help': '获得帮助'
 }
-#################
+# ========================#
 '''
 老代码用与查看使用者发送给bot的消息
 # 转发使用者发给与bot的对话
@@ -29,6 +30,7 @@ def ret_msg_to_admin(message):
     bot.forward_message(admin_id, message.chat.id, message.message_id, disable_notification=True)
     # bot.forward_message(admin_id, message.chat.id, msg.message_id, disable_notification=True)
 '''
+
 
 # 显示在控制台
 def listener(messages):
@@ -44,13 +46,14 @@ def listener(messages):
 
 # 注册对象
 bot = telebot.TeleBot(API_TOKEN)
-bot.set_update_listener(listener)  # 注册聆听
+bot.set_update_listener(listener)  # 注册listener
+
 
 # 开启DEBUG并输出到控制台
-#telebot.logger.setLevel(logging.DEBUG)
+# telebot.logger.setLevel(logging.DEBUG)
 
 
-# 设定全局函数 send_command_message 减少在群组内打扰人的情况
+# 设定全局函数 send_command_message 减少在群组内打扰人的情况(回复一个消息
 def send_command_message(message, text):
     if "group" in message.chat.type:
         if "@xiaoyuesama_bot" in message.text:
@@ -59,21 +62,13 @@ def send_command_message(message, text):
         bot.reply_to(message, text)
 
 
-# 设定全局函数 send_message 减少在群组内打扰人的情况
+# 设定全局函数 send_message 减少在群组内打扰人的情况（发送一个单独的消息
 def send_message_one(message, text):
     if "group" in message.chat.type:
         if "@xiaoyuesama_bot" in message.text:
             bot.send_message(message.chat.id, text)
     else:
         bot.send_message(message.chat.id, text)
-
-
-'''
-# send_to_admin = bot.forward_message(admin_id, from_chat_id, message_id)
-#ef forward_message_to_admin(self,message):
-
-    ret_msg = bot.forward_message(admin_id, message.chat.id, bot.send_message(message.chat.id, text).message_id)
-'''
 
 
 # 菜单函数在用户使用 /help 的时候显示相应的功能按钮
@@ -115,11 +110,9 @@ def send_Get_chat_id(message):
     send_command_message(message, '您的chat_id为：' + str(message.chat.id) + '''
 你的User Name为：''' + str(message.chat.username) + '''
 你的来源国家可能为：''' + str(message.from_user.language_code))
-    # 转发消息给作者
-    ret_msg_to_admin(message)
 
 
-# 处理 prpr 请求 50%的概率出现其中之一
+# 处理 prpr 请求 70%的概率出现 “才不让呢（哼唧”
 @bot.message_handler(commands=['prpr'])
 def send_prpr(message):
     if random.random() > 0.7:
@@ -131,9 +124,8 @@ def send_prpr(message):
         bot.send_sticker(message.chat.id, prpr, disable_notification=True)
         send_message_one(message, '我也喜欢你呢')
 
-        # todo 增加markdown操作
 
-
+# todo 增加markdown操作
 '''
 #makedown
 @bot.message_handler(commands=['makedown'])
@@ -143,7 +135,7 @@ def send_let_me_google_for_you(message):
 '''
 
 
-# google 内容直接调用
+# google 内容直接调用，即让我教你google
 @bot.message_handler(commands=['lgy'])
 def send_let_me_google_for_you(message):
     long_url = 'https://lmgtfy.com/?q=' + message.text.lstrip('/lgy ')
@@ -154,8 +146,8 @@ def send_let_me_google_for_you(message):
 @bot.message_handler(commands=['hitokoto'])
 def send_hitokoto(message):
     try:
-        r = requests.get(hitokoto_api)
-        send_message_one(message, r)
+        R = requests.get(hitokoto_api)
+        send_message_one(message, R)
     except Exception:
         send_message_one(message, '啊咧，接口好像崩坏了。请再次发送 /hitokoto 或稍后尝试。')
 
@@ -199,5 +191,5 @@ if __name__ == '__main__':  # 防止其他程序调用时出现问题
     try:
         main_loop()
     except KeyboardInterrupt:  # 定义了 Ctrl + C 结束程序的时候出现异常的返回
-        print >> sys.stderr, '\nExiting by user request.\n'
+        print('\nExiting by user request.\n')
         sys.exit(0)
