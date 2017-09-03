@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import logging
 import random
 import sys
 import time
@@ -11,8 +12,8 @@ from telebot import types
 # ========================#
 # 以下全局参数设定
 
-API_TOKEN = "TOKEN"
-admin_id = int(Your_ID)
+API_TOKEN = "420662445:AAGYiyWTqG1Y_KmfFcFHJgUjZZIZqE0KTO0"
+admin_id = int(106299751)
 hitokoto_api = 'http://api.hitokoto.cn/?encode=text'
 hideBoard = types.ReplyKeyboardRemove()  # 隐藏键盘
 commands = {  # command description used in the "help" command
@@ -50,7 +51,8 @@ bot.set_update_listener(listener)  # 注册listener
 
 
 # 开启DEBUG并输出到控制台
-# telebot.logger.setLevel(logging.DEBUG)
+logger = telebot.logger
+telebot.logger.setLevel(logging.DEBUG)  # Outputs debug messages to console.
 
 
 # 设定全局函数 send_command_message 减少在群组内打扰人的情况(回复一个消息
@@ -160,10 +162,22 @@ def handle_docs_audio(message):
 
 
 # todo 入群进行提醒
+@bot.message_handler(func=lambda message: True, content_types=['new_chat_members'])
+def handle_new_chat_member(message):
+    bot.send_message(message.chat.id, '亲爱的 ' + message.new_chat_member.username + ' 你吼呀，欢迎加入本群。')
 
 
-# todo 设定关键词 自动回复 一天提醒一次
+# todo 设定关键词 对于特定的人 自动回复 一天提醒一次
 
+# 1.自动获取群内管理员及其创造者
+# 2.对相应的群的申请信息发送至相应的管理者
+# 3.当管理员同意的时候（只需管理员点击一个按钮即可(Inline keyboards and on-the-fly updating)
+# 最好所有管理员接触到的按钮同步）
+#
+#    两种方案
+#    1.bot与管理员私聊
+#    2.创建一个频道
+# 4.管理员同意后拉人进群
 
 # echo_message_info 返回消息信息 顺带获取内容
 @bot.message_handler(func=lambda message: True)
