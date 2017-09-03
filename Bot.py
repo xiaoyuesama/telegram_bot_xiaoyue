@@ -161,14 +161,16 @@ def handle_docs_audio(message):
     pass
 
 
-# 获取群管理狗U•ェ•*U
+# 对于命令 /get_admin 获取群管理狗U•ェ•*U 并显示
 @bot.message_handler(commands=['get_admin'])
 def to_get_chat_administrators(message):
     get_administrator = bot.get_chat_administrators(message.chat.id)
-
-    for id in get_administrator:
-        administrator = id
-    send_message_one(message, str(administrator))
+    administrators = []
+    for admin in get_administrator:
+        administrator = '@' + str(admin.user.username) + ' '
+        administrators.append(administrator)
+    admin = ",".join(administrators)
+    send_message_one(message, '本群的管理是：' + str(admin) + '。')
 
 
 # 入群进行提醒
