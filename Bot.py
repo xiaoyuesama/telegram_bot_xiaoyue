@@ -13,7 +13,7 @@ from telebot import types
 # 以下全局参数设定
 
 API_TOKEN = "TOKEN"
-admin_id = int(Your_id)
+admin_id = int(id)
 hitokoto_api = 'http://api.hitokoto.cn/?encode=text'
 hideBoard = types.ReplyKeyboardRemove()  # 隐藏键盘
 commands = {  # command description used in the "help" command
@@ -75,7 +75,7 @@ def send_message_one(message, text):
 
 # 菜单函数在用户使用 /help 的时候显示相应的功能按钮
 def muen(message):
-    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=0)
     itembtn_get_chat_id = types.KeyboardButton('/get_chat_id')
     itembtn_prpr = types.KeyboardButton('/prpr')
     itembtn_help = types.KeyboardButton('/help')
@@ -170,7 +170,17 @@ def to_get_chat_administrators(message):
         administrator = '@' + str(admin.user.username) + ' '
         administrators.append(administrator)
     admin = ",".join(administrators)
-    send_message_one(message, '本群的管理是：' + str(admin) + '。')
+    send_message_one(message, '本群的🐶管理是：' + str(admin) + '。')
+
+
+# 引入callback_query_handler
+@bot.callback_query_handler(func=lambda call: True)
+def callback_inline(call):
+    if call.message:
+        if call.data == "start":
+            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  text="Please describe your problem.")
+            # here I need wait for user text response, save it and go to the next step
 
 
 # 入群进行提醒
@@ -180,18 +190,20 @@ def handle_new_chat_member(message):
 
 
 # todo 设定关键词 对于特定的人 自动回复 一天提醒一次
+'''
+设定相应的加群指令 md5（群名）
+1.自动获取相应群 群内管理员及其创造者，并记录
 
-# 1.自动获取群内管理员及其创造者
+2.当获取到加群申请时 对相应的群的申请信息发送至相应的管理者
 
-# 2.对相应的群的申请信息发送至相应的管理者
-# 3.当管理员同意的时候（只需管理员点击一个按钮即可(Inline keyboards and on-the-fly updating)
-# 最好所有管理员接触到的按钮同步）
-#
-#    两种方案
-#    1.bot与管理员私聊
-#    2.创建一个频道
-# 4.管理员同意后拉人进群
+3.当管理员同意的时候（只需管理员点击一个按钮即可(Inline keyboards and on-the-fly updating)
+最好所有管理员接触到的按钮同步）
 
+    两种方案
+    1.bot与管理员私聊
+    2.创建一个频道
+4.管理员同意后拉人进群
+'''
 # echo_message_info 返回消息信息 顺带获取内容
 @bot.message_handler(func=lambda message: True)
 def echo_message_info(message):
