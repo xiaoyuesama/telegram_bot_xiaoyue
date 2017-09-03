@@ -12,8 +12,8 @@ from telebot import types
 # ========================#
 # 以下全局参数设定
 
-API_TOKEN = "420662445:AAGYiyWTqG1Y_KmfFcFHJgUjZZIZqE0KTO0"
-admin_id = int(106299751)
+API_TOKEN = "TOKEN"
+admin_id = int(Your_id)
 hitokoto_api = 'http://api.hitokoto.cn/?encode=text'
 hideBoard = types.ReplyKeyboardRemove()  # 隐藏键盘
 commands = {  # command description used in the "help" command
@@ -161,7 +161,17 @@ def handle_docs_audio(message):
     pass
 
 
-# todo 入群进行提醒
+# 获取群管理狗U•ェ•*U
+@bot.message_handler(commands=['get_admin'])
+def to_get_chat_administrators(message):
+    get_administrator = bot.get_chat_administrators(message.chat.id)
+
+    for id in get_administrator:
+        administrator = id
+    send_message_one(message, str(administrator))
+
+
+# 入群进行提醒
 @bot.message_handler(func=lambda message: True, content_types=['new_chat_members'])
 def handle_new_chat_member(message):
     bot.send_message(message.chat.id, '亲爱的 ' + message.new_chat_member.username + ' 你吼呀，欢迎加入本群。')
@@ -170,6 +180,7 @@ def handle_new_chat_member(message):
 # todo 设定关键词 对于特定的人 自动回复 一天提醒一次
 
 # 1.自动获取群内管理员及其创造者
+
 # 2.对相应的群的申请信息发送至相应的管理者
 # 3.当管理员同意的时候（只需管理员点击一个按钮即可(Inline keyboards and on-the-fly updating)
 # 最好所有管理员接触到的按钮同步）
