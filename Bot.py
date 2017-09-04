@@ -13,7 +13,7 @@ from telebot import types
 # 以下全局参数设定
 
 API_TOKEN = "TOKEN"
-admin_id = int(id)
+admin_id = int(Your_id)
 hitokoto_api = 'http://api.hitokoto.cn/?encode=text'
 hideBoard = types.ReplyKeyboardRemove()  # 隐藏键盘
 commands = {  # command description used in the "help" command
@@ -59,9 +59,9 @@ telebot.logger.setLevel(logging.DEBUG)  # Outputs debug messages to console.
 def send_command_message(message, text):
     if "group" in message.chat.type:
         if "@xiaoyuesama_bot" in message.text:
-            bot.reply_to(message, text)
+            bot.reply_to(message.chat.id, text)
     else:
-        bot.reply_to(message, text)
+        bot.reply_to(message.chat.id, text)
 
 
 # 设定全局函数 send_message 减少在群组内打扰人的情况（发送一个单独的消息
@@ -99,6 +99,26 @@ def send_welcome(message):
     bot.send_message(message.chat.id, help_text)  # send the generated help page
 
 
+@bot.message_handler(commands=['inlinemarkup'])
+def test_send_message_with_inlinemarkup(message):
+    text = '测试信息'
+    markup = types.InlineKeyboardMarkup()
+
+    markup.add(types.InlineKeyboardButton("Google", url="http://www.google.com"))
+    markup.add(types.InlineKeyboardButton("Yahoo", url="https://t.me/Cosplay_Album"))
+    markup.add(types.InlineKeyboardButton("Yaho00o", url=str(bot.export_chat_invite_link('@Coser_Album'))))
+    markup.add(types.InlineKeyboardButton("Yahoo0",
+                                          callback_data='yes|' + str(message.chat.id) + str(message.text).lstrip(
+                                              '/inlinemarkup')))
+    ret_msg = bot.send_message(message.chat.id, text, disable_notification=True, reply_markup=markup)
+    assert ret_msg.message_id
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def test_callback(call):
+    logger.info(call)
+
+
 # 处理 help 请求
 @bot.message_handler(commands=['help'])
 def send_Help_info(message):
@@ -127,14 +147,19 @@ def send_prpr(message):
         send_message_one(message, '我也喜欢你呢')
 
 
-# todo 增加markdown操作
-'''
-#makedown
+# 发送 makedown 化后的消息
 @bot.message_handler(commands=['makedown'])
-def send_let_me_google_for_you(message):
+def send_markdown_for_you(message):
    pure_message = message.text.lstrip('/makedown ')
-   send_command_message(message, pure_message ,parse_mode='Markdown')
-'''
+   bot.send_message(message.chat.id, pure_message, parse_mode="Markdown")
+
+
+# 发送 HTML 化后的消息
+@bot.message_handler(commands=['html'])
+def send_html_for_you(message):
+    pure_message = message.text.lstrip('/html ')
+    bot.send_message(message.chat.id, pure_message, parse_mode="HTML")
+
 
 
 # google 内容直接调用，即让我教你google
@@ -173,14 +198,6 @@ def to_get_chat_administrators(message):
     send_message_one(message, '本群的🐶管理是：' + str(admin) + '。')
 
 
-# 引入callback_query_handler
-@bot.callback_query_handler(func=lambda call: True)
-def callback_inline(call):
-    if call.message:
-        if call.data == "start":
-            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                  text="Please describe your problem.")
-            # here I need wait for user text response, save it and go to the next step
 
 
 # 入群进行提醒
