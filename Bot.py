@@ -12,8 +12,8 @@ from telebot import types
 # ========================#
 # 以下全局参数设定
 
-API_TOKEN = "TOKEN"
-admin_id = int(Your_id)
+API_TOKEN = "Token"
+admin_id = int(yourID)
 hitokoto_api = 'http://api.hitokoto.cn/?encode=text'
 hideBoard = types.ReplyKeyboardRemove()  # 隐藏键盘
 commands = {  # command description used in the "help" command
@@ -99,20 +99,36 @@ def send_welcome(message):
     bot.send_message(message.chat.id, help_text)  # send the generated help page
 
 
+# 发送chatid 检测频道的唯一id（Unique identifier）
+@bot.message_handler(commands=['Chat'])
+def send_getChat_id(message):
+    try:
+        L = message.text.lstrip('/Chat ')
+        Chat_L_Id = bot.get_chat(L)
+        if Chat_L_Id.type == "supergroup":
+            bot.send_message(message.chat.id, '该超级群的唯一id（Unique identifier）为：' + str(Chat_L_Id.id))
+        else:
+            bot.send_message(message.chat.id, '该频道的唯一id（Unique identifier）为：' + str(Chat_L_Id.id))
+    except Exception:
+        bot.send_message(message.chat.id, '返回错误消息不正确，可能是因为提供数据不是超级群或频道。')
+
+
+# inlinemarkup 相关设置 有生成邀请链接 提供inline button 功能
 @bot.message_handler(commands=['inlinemarkup'])
 def test_send_message_with_inlinemarkup(message):
-    text = '测试信息'
-    markup = types.InlineKeyboardMarkup()
-
-    markup.add(types.InlineKeyboardButton("Google", url="http://www.google.com"))
-    markup.add(types.InlineKeyboardButton("Yahoo", url="https://t.me/Cosplay_Album"))
-    markup.add(types.InlineKeyboardButton("Yaho00o", url=str(bot.export_chat_invite_link('@Coser_Album'))))
-    markup.add(types.InlineKeyboardButton("Yahoo0",
-                                          callback_data='yes|' + str(message.chat.id) + str(message.text).lstrip(
-                                              '/inlinemarkup')))
-    ret_msg = bot.send_message(message.chat.id, text, disable_notification=True, reply_markup=markup)
-    assert ret_msg.message_id
-
+    try:
+        text = '测试信息'
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("Google", url="http://www.google.com"))
+        markup.add(types.InlineKeyboardButton("Yahoo", url="https://t.me/Cosplay_Album"))
+        markup.add(types.InlineKeyboardButton("Yaho00o", url=str(
+            bot.export_chat_invite_link('-1001119951412'))))  # -1001119951412 为频道唯一ID 如果要使用'@channelusername'的话无比带上'@'
+        markup.add(types.InlineKeyboardButton("Yahoo0",
+                                              callback_data='yes|' + str(message.chat.id) + str(message.text).lstrip(
+                                                  '/inlinemarkup')))
+        ret_msg = bot.send_message(message.chat.id, text, disable_notification=True, reply_markup=markup)
+    except Exception:
+        bot.send_message(message.chat.id, '啊咧，接口好像没有返回成功。本 bot 似乎没有成为管理员。')
 
 @bot.callback_query_handler(func=lambda call: True)
 def test_callback(call):
@@ -196,8 +212,6 @@ def to_get_chat_administrators(message):
         administrators.append(administrator)
     admin = ",".join(administrators)
     send_message_one(message, '本群的🐶管理是：' + str(admin) + '。')
-
-
 
 
 # 入群进行提醒
