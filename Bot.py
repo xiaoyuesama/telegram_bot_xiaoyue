@@ -12,8 +12,8 @@ from telebot import types
 # ========================#
 # 以下全局参数设定
 
-API_TOKEN = "Token"
-admin_id = int(yourID)
+API_TOKEN = "420662445:AAGYiyWTqG1Y_KmfFcFHJgUjZZIZqE0KTO0"
+admin_id = int(106299751)
 hitokoto_api = 'http://api.hitokoto.cn/?encode=text'
 hideBoard = types.ReplyKeyboardRemove()  # 隐藏键盘
 commands = {  # command description used in the "help" command

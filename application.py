@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import logging
 import sys
 import time
 
@@ -7,35 +8,33 @@ import telebot
 from telebot import types
 
 # 全局参数
-API_TOKEN = "Token"
-admin_id = int(Your_id)
+API_TOKEN = "404712476:AAFDX4dFl0qQeHMn8z0p0ihuqYg3Rhusi_w"
+admin_id = int(106299751)
 bot = telebot.TeleBot(API_TOKEN)
 # 用来存储群组信息
 group_infors = []
+
+# 开启DEBUG并输出到控制台
+logger = telebot.logger
+telebot.logger.setLevel(logging.DEBUG)  # Outputs debug messages to console.
 
 
 # 处理 start 请求 并提供说明
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.send_message(message.chat.id, '欢迎使用入群申请机器人。')  # send the generated help page
-    unique_code = message.text.lstrip('/start ')
-    join_group(message)
+    commands = "/start "
+    unique_code = message.text.lstrip(commands)
+    find_group_infor(message, unique_code, commands)
 
 
 @bot.message_handler(commands=['join'])
-def send_welcome(message):
-    unique_code = message.text.lstrip('/join ')
-    join_group(message)
+def send_join(message):
+    commands = "/join "
+    unique_code = message.text.lstrip(commands)
 
-
-def join_group(message):
-    bot.send_chat_action(message.chat.id, 'typing')
     try:
-        unique_code = message.text.lstrip('/start ')
-        if unique_code in (-1001119951412,):
-            bot.send_message(message.chat.id, '您要申请加入的群是： ' + group_name + ' 以下是入群的验证条件请仔细阅读：' + group_rule)
-        else:
-            bot.send_message(message.chat.id, "您要申请的群是？ 请通过 /join XXXXX 申请加入相应群聊")
+        find_group_infor(message, unique_code, commands)
     except Exception:
         bot.send_message(message.chat.id, '啊咧，你在干什么？ 如有疑问请联系 @xiaoyue_sama 。')
 
@@ -77,11 +76,14 @@ def add_new_group_infor(message):
     try:
         unique_code = message.text.lstrip('/add_new_group_infor ')
         test = bot.export_chat_invite_link(str(unique_code))
-        if test == True:
+        bot.send_message(message.chat.id, test)
+        if len(test) >> 0:
             Chat_infor = bot.get_chat(unique_code)
             # 定义一个新的字典,用来存储一个新的群组信息
             new_infor = {}
+
             new_infor['name'] = Chat_infor.username
+            new_infor['unique_code'] = Chat_infor.id
             new_infor['type'] = Chat_infor.type
             new_infor['description'] = Chat_infor.description
             new_infor['invite_link'] = Chat_infor.invite_link
@@ -89,41 +91,73 @@ def add_new_group_infor(message):
             # 将一个字典,添加到列表中
             global group_infors
             group_infors.append(new_infor)
+            """把已经添加的信息保存到文件中"""
+            f = open("backup.data", "w")
+
+            f.write(str(group_infors))
+
+            f.close()
         else:
-            bot.send_message(message.chat.id, '啊咧，你在干什么？ 请确认您输入了正确的信息 如有疑问请联系 @xiaoyue_sama 。')
+            bot.send_message(message.chat.id, '啊咧，请确认您输入的消息务必是超级群并且本bot成为管理员否则不能生成邀请链接 如有疑问请联系 @xiaoyue_sama 。')
     except Exception:
-        bot.send_message(message.chat.id, '啊咧，你在干什么？ 请确认您输入了正确的信息 如有疑问请联系 @xiaoyue_sama 。')
+        bot.send_message(message.chat.id, '啊咧，你输入的东西有问题，请检查以上内容后再进行输入。')
 
 
 @bot.message_handler(commands=['list'])
 def list_group_infor(message):
     global group_infors
-    group_text = "HI, " + str(message.chat.username) + " 我目前拥有的群组消息: \n"
+
+    load_group_infor(message)
+
+    group_text = "HI, " + str(message.chat.username) + " 我目前拥有的群组有: \n"
+
     for temp in group_infors:  # generate help text out of the group_infors dictionary defined at the top
-        group_text += "群组：" + temp['name'] + "描述 " + temp['description'] + "\n"
+        group_text += "群组：" + temp['name'] + "；  唯一ID："
+        group_text += str(temp['unique_code']) + "\n"
+
     bot.send_message(message.chat.id, group_text)  # send the generated group info page
 
-
-'''
 #群组查找
 @bot.message_handler(commands=['find'])
-def find_group_infor(message):
+def find_group(message):
+    commands = "/find "
+    unique_code = message.text.lstrip(commands)
+    find_group_infor(message, unique_code, commands)
+
+
+def find_group_infor(message, unique_code, commands):
     """用来查询一个群组"""
+    try:
+        global group_infors
 
-    global group_infors
+        load_group_infor(message)
 
-    find_name = input("请输入要查找的群名:")
-    find_flag = 0  # 默认表示没有找到
-    for temp in group_infors:
-        if find_name == temp["name"]:
-            print("%s\t%s\t%s\t%s" % (temp['name'], temp['type'], temp['description']))
-            find_flag = 1  # 表示找到了
-            break
+        find_flag = 0  # 默认表示没有找到
 
-    # 判断是否找到了
-    if find_flag == 0:
-        print("查无此群组....")
-'''
+        for temp in group_infors:
+
+            if unique_code == str(temp['unique_code']):
+                bot.send_message(message.chat.id,
+                                 '您要申请加入的群是： ' + temp['name'] + ' 以下是入群的验证条件请仔细阅读：' + temp['description'])
+                find_flag = 1  # 表示找到了
+                break
+        # 判断是否找到了
+
+        if find_flag == 0:
+            bot.send_message(message.chat.id, "您要申请的群是？ 请通过 " + commands + " XXXXX 申请加入相应群聊")
+    except Exception:
+        bot.send_message(message.chat.id, "您要申请的群是？ 请通过 " + commands + " XXXXX 申请加入相应群聊")
+
+
+def load_group_infor(message):
+    try:
+        global group_infors
+        f = open("backup.data")
+        group_infors = eval(f.read())
+        f.close()
+    except Exception:
+        bot.send_message(admin_id, "保存信息读取失败请联系 @xiaoyue_sama 寻求帮助。")
+
 
 
 def main_loop():  # 主程序函数
